@@ -1,6 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as iam from '@aws-cdk/aws-iam';
+import { AttributeType, Table } from '@aws-cdk/aws-dynamodb';
+import { Construct, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
 
 export class InfrastructureStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -19,5 +21,13 @@ export class InfrastructureStack extends cdk.Stack {
   principals: [new iam.Anyone()],
 })
 bucket.addToResourcePolicy(bucketPolicy); // 4 
+
+const tableName = 'movies';
+
+    new Table(this, 'moviesTable', {
+      tableName,
+      partitionKey: { name: 'id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
 }
 }
