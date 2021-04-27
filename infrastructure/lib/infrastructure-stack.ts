@@ -36,9 +36,9 @@ const tableName = 'Movies';
     });
 
 const moviesLambda = new lambda.Function(this, 'MoviesHandler', {
-      code: lambda.Code.fromAsset('../client/src/lambda'),
+      code: lambda.Code.fromAsset('src/lambda'),
       
-      handler: 'client/src/lambda/moviesHandler.handler',
+      handler: 'moviesHandler.handler',
       runtime: lambda.Runtime.NODEJS_14_X,
       memorySize: 256,
       environment: {
