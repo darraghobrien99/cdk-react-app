@@ -82,7 +82,7 @@ function Main() {
         <br />
         <Form onSubmit={e => handleSubmit(e)}> 
         <Jumbotron>
-          <h1 className="header text-center">Submit A Movie Review</h1>
+          <h1 className="header text-center">Submit Movie Review</h1>
         </Jumbotron>
       <Form.Group controlId="exampleForm.ControlInput1">
         <Form.Label>Title</Form.Label>
