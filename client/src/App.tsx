@@ -9,61 +9,82 @@ import Alert from 'react-bootstrap/Alert';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import { IMovie } from '../../infrastructure/src/interfaces/movie';
+import { HashRouter, Route, Link, Switch } from 'react-router-dom';
+import { AmplifyAuthenticator, AmplifySignUp } from '@aws-amplify/ui-react';
+import Amplify, {Auth, Hub} from 'aws-amplify';
+import Main from './Main'
+import Profile from './Profile';
 
 function App() {
-  const apiEndpoint = 'https://11xy11mvif.execute-api.us-east-1.amazonaws.com/prod/';
-  const [movies, setMovies] = useState<Array<IMovie>>([]);
-  const [error, setError] = useState<{ message: string } | null>(null);
-
-  useEffect(() => {
-    axios
-      .get(apiEndpoint)
-      .then(({ data }) => {
-        setMovies(data);
-      })
-      .catch((err) => {
-        setError({ message: 'API ERROR' });
-      });
+  /*  const [user, updateUser] = React.useState(null);
+  React.useEffect(() => {
+    Auth.currentAuthenticatedUser()
+      .then(user => updateUser(user))
+      .catch(() => console.log('No signed in user.'));
+      Hub.listen('auth', data => {
+      switch (data.payload.event) {
+        case 'signIn':
+          return updateUser(data.payload.data);
+        case 'signOut':
+          return updateUser(null);
+      }
+    });
   }, []);
-
+  if (user) {  */
+    return <Main />
+  /*  }
   return (
-    <Container fluid className="p-3">
-      <Jumbotron>
-        <h1 className="header text-center">Welcome to Movies Page</h1>
-      </Jumbotron>
-      <Form.Control as="select">
-        <option>All</option>
-        <option>...</option>
-      </Form.Control>
-      <br />
-      {error && <Alert variant="danger">{error.message}</Alert>}
-      <Row>
-        {movies &&
-          movies.map((movie, i) => (
-            <Col key={i} xs="4">
-              <Card>
-                <Card.Title className="mt-2 font-weight-bold text-center">{movie.title}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted text-center">{movie.genre}</Card.Subtitle>
-                <Table striped bordered hover className="mb-0">
-                  <thead>
-                    <tr>
-                      <th>Length</th>
-                      <th>Review Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{movie.length}</td>
-                      <td> {movie.reviewScore}</td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Card>
-            </Col>
-          ))}
-      </Row>
-    </Container>
-  );
+    <AmplifyAuthenticator>
+      <AmplifySignUp slot="sign-up"
+        formFields={[
+          { type: "username" },
+          { type: "password" },
+          { type: "email" }
+        ]}
+      />
+    </AmplifyAuthenticator>
+  ) 
+   */
+}
+
+const topLevelContainerStyle = {
+  height: 170,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%'
+}
+
+const mainViewContainerStyle = {
+  padding: '180px 30px 80px',
+}
+
+const headerStyle = {
+  padding: 30,
+  color: 'white'
+}
+
+const titleStyle = {
+  fontSize: 34,
+  margin: 0,
+  fontWeight: 600
+}
+
+const navStyle = {
+  padding: '20px 30px',
+  backgroundColor: '#ddd'
+}
+
+const homeLinkStyle = {
+  textDecoration: 'none',
+  color: 'white',
+}
+
+const linkStyle = {
+  margin: 0,
+  textDecoration: 'none',
+  fontSize: 20,
+  marginRight: 20
 }
 
 export default App;
