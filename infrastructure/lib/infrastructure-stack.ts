@@ -6,6 +6,9 @@ import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigateway from '@aws-cdk/aws-apigateway';
 import { AttributeType, Table } from '@aws-cdk/aws-dynamodb';
 import { Construct, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
+import { UserPool, VerificationEmailStyle, UserPoolClient, AccountRecovery } from '@aws-cdk/aws-cognito';
+import * as codecommit from "@aws-cdk/aws-codecommit";
+import * as amplify from "@aws-cdk/aws-amplify";
 
 
 export class InfrastructureStack extends cdk.Stack {
@@ -28,7 +31,7 @@ export class InfrastructureStack extends cdk.Stack {
 bucket.addToResourcePolicy(bucketPolicy); // 4 
 
 //Create Movies Table in DynamoDB
-const tableName = 'Movies';
+const tableName = 'Movie';
    const moviesTable =  new Table(this, 'moviesTable', {
       tableName,
       partitionKey: { name: 'title', type: AttributeType.STRING },
@@ -52,6 +55,45 @@ const moviesLambda = new lambda.Function(this, 'MoviesHandler', {
       handler: moviesLambda,
     });
 
+  /*   // Part 1 [Optional] - Creation of the source control repository
+    const amplifyReactRepo = new codecommit.Repository(
+      this,
+      "react-aws-application",
+      {
+        repositoryName: "react-aws-application-repo",
+        description:
+          "CodeCommit repository that will be used as the source repository for the react app and the cdk app",
+      }
+    );
+
+    // Part 2 - Creation of the Amplify Application
+    const amplifyApp = new amplify.App(this, "react-aws-movie-application", {
+      sourceCodeProvider: new amplify.CodeCommitSourceCodeProvider({
+        repository: amplifyReactRepo,
+      }),
+    });
+    const masterBranch = amplifyApp.addBranch("master"); */
+
+    const userPool = new UserPool(this, 'react-app-user-pool', {
+      selfSignUpEnabled: true,
+      accountRecovery: AccountRecovery.PHONE_AND_EMAIL,
+      userVerification: {
+        emailStyle: VerificationEmailStyle.CODE
+      },
+      autoVerify: {
+        email: true
+      },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: true
+        }
+      }
+    });
+    
+    const userPoolClient = new UserPoolClient(this, "UserPoolClient", {
+      userPool
+    });
   
 }
 }

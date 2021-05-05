@@ -3,6 +3,7 @@ import { IMovie } from '../interfaces/movie';
 import * as AWSLambda from 'aws-lambda';
 
 const tableName = process.env.TABLE_NAME || '';
+const tablePK = process.env.TABLE_PK || '';
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
 const createResponse = (body: string | AWS.DynamoDB.DocumentClient.ItemList, statusCode = 200) => {
@@ -11,6 +12,8 @@ const createResponse = (body: string | AWS.DynamoDB.DocumentClient.ItemList, sta
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,DELETE',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
     },
     body: JSON.stringify(body, null, 2),
   };
@@ -19,6 +22,11 @@ const createResponse = (body: string | AWS.DynamoDB.DocumentClient.ItemList, sta
 const getAllMovies = async () => {
   const scanResult = await dynamo.scan({ TableName: tableName }).promise();
   return scanResult;
+};
+
+const oneMovie = async (movie: string) => {
+  const params = { TableName: tableName, Key: { [tablePK]: movie } };
+  return await dynamo.get(params).promise();
 };
 
 const addMovieItem = async (data: IMovie) => {
@@ -34,22 +42,28 @@ const deleteMovieItem = async (data: { title: string }) => {
 
 exports.handler = async function (event: AWSLambda.APIGatewayEvent) {
   try {
-    const { httpMethod, body: requestBody } = event;
+    const { httpMethod, body: requestBody, queryStringParameters: params } = event;
 
     if (httpMethod === 'OPTIONS') {
       return createResponse('Ok');
     }
 
     if (httpMethod === 'GET') {
-      const response = await getAllMovies();
-      return createResponse(response.Items || []);
+      if (!params) {
+        const response = await getAllMovies();
+        return createResponse(response.Items || []);
+      } else if (params.movie) {
+        const { Item } = await oneMovie(params.movie);
+        return createResponse(Item ? [Item] : []);
+      }
     }
+
 
     if (!requestBody) {
       return createResponse('Missing request body', 500);
     }
 
-    const data         ​= JSON.parse(requestBody);
+    const data = JSON.parse(requestBody);
 
     if (httpMethod === 'POST') {
       const movie = await addMovieItem(data);
